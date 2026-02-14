@@ -1,17 +1,91 @@
 ---
-
+import "./global.css";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <main class="w-full h-full min-h-screen flex items-center justify-center">
+      <div class="w-124 flex flex-col gap-16 p-4 relative pt-48">
+        <canvas
+          class="absolute w-2xl h-84 bg-neutral-50 border border-neutral-300 rounded-xl top-0 left-1/2 -translate-x-1/2"
+        ></canvas>
+        <div
+          class="w-56 h-56 bg-yellow-200 rounded-3xl flex flex-col p-4 gap-2 -translate-x-4"
+        >
+          <div class="w-full flex gap-2">
+            <p class="text-3xl">5</p>
+            <div class="flex flex-col text-xs pt-1">
+              <p>Dean Blunt</p>
+              <p>Elias Rønnenfelt</p>
+            </div>
+          </div>
+          <canvas class="w-full h-full bg-black"></canvas>
+        </div>
+        <audio src="five.mp3" class="w-full rounded-md" controls></audio>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+          <div class="w-full flex justify-between col-start-1 col-span-1">
+            <label for="regrowth" class="w-full">Regrowth</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+          <div
+            class="w-full flex justify-between col-start-1 col-span-1 row-start-2"
+          >
+            <label for="line-density" class="w-full">Line Density</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+          <div
+            class="w-full flex justify-between col-start-1 col-span-1 row-start-3"
+          >
+            <label for="line-size" class="w-full">Line Size</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+          <div
+            class="w-full flex justify-between col-start-2 col-span-1 row-start-1"
+          >
+            <label for="lacunarity" class="w-full">Lacunarity</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+          <div
+            class="w-full flex justify-between col-start-2 col-span-1 row-start-2"
+          >
+            <label for="octaves" class="w-full">Octaves</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+          <div
+            class="w-full flex justify-between col-start-2 col-span-1 row-start-3"
+          >
+            <label for="Gradient" class="w-full">Gradient</label>
+            <input
+              type="number"
+              class="bg-white border-2 border-neutral-200 rounded-sm w-8"
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
