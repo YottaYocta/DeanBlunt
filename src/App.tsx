@@ -130,36 +130,7 @@ function App() {
     };
 
     drawBaseCanvas();
-
-    // const drawFrequencyAndAmplitudeTest = () => {
-    //   if (largeCanvasRef.current) {
-    //     const ctx = largeCanvasRef.current.getContext("2d")!;
-    //     const width = largeCanvasRef.current.width;
-    //     const height = largeCanvasRef.current.width;
-    //     const pitchData = analysisData.current.pitchData;
-
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     const barWidth = Math.floor(width / pitchData.length);
-    //     for (let i = 0; i < pitchData.length; i++) {
-    //       const barHeight = Math.min(height, height * (pitchData[i] / 255));
-
-    //       ctx.fillStyle =
-    //         Math.abs(pitchData[0] - pitchData[1]) > 10 &&
-    //         pitchData[0] > pitchData[1]
-    //           ? "#ff0000"
-    //           : "#00ff00";
-    //       ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight);
-    //     }
-    //   }
-
-    //   animationFrame2.current = requestAnimationFrame(
-    //     drawFrequencyAndAmplitudeTest,
-    //   );
-    // };
-
     updateAnalysisData();
-    // drawFrequencyAndAmplitudeTest();
 
     return () => {
       cancelAnimationFrame(animationFrame.current);
