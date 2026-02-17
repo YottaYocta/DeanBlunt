@@ -13,10 +13,11 @@ function App() {
   const animationFrame2 = useRef<number>(0);
   const largeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourceInitialized = useRef(false);
+  const FFT_SIZE = 2048 * 2;
 
   const analysisData = useRef<AnalysisData>({
-    frequencyData: new Uint8Array(512 * 2 * 2),
-    waveformData: new Uint8Array(256),
+    frequencyData: new Uint8Array(FFT_SIZE / 2),
+    waveformData: new Uint8Array(FFT_SIZE),
   });
 
   const initializeSource = () => {
@@ -26,6 +27,8 @@ function App() {
       const audioSource = contextRef.current.createMediaElementSource(
         audioElementRef.current,
       );
+
+      analyzerNodeRef.current.fftSize = FFT_SIZE;
 
       audioSource.connect(analyzerNodeRef.current);
       audioSource.connect(contextRef.current.destination);
@@ -54,7 +57,7 @@ function App() {
         const freqData = analysisData.current.frequencyData;
 
         const MAX_FREQ = 255;
-        const FREQ_SKIP = 2;
+        const FREQ_SKIP = 1;
         const widthPerFreqeuncyBar = Math.max(
           1,
           width / (freqData.length / FREQ_SKIP + 1),
