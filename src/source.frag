@@ -244,8 +244,8 @@ void main()
         mix(
             vec3(
                 //0.0,
-                //pow(max(0.0,1.0 - float(min_dist)), 2.0 * uNotes.x + 3.0),
-                pow(max(0.0,1.0 - float(min_dist)), 0.5 * uNotes.y + 1.0)
+                //pow(max(0.0,1.0 - float(min_dist)), 2.0 * uNotes.x + 1.0),
+                pow(max(0.0,1.0 - float(min_dist)), 0.5 * uNotes.x + 1.0)
                 //pow(1.0 - float(steps) / float(MAX_STEPS), 2.0),
                 //1.0
                 ), 
@@ -254,7 +254,7 @@ void main()
                 //pow(1.0 - float(steps) / float(MAX_STEPS), 2.0)
                 //1.0
                 ), 
-                min(1.0,(1.0 - uNotes.x) + 0.2)
+                pow(min(1.0,(1.0 - uNotes.x) + 0.4), 2.0)
             //float(intersected)
         ), 
         1.0
