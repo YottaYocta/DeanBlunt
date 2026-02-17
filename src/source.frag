@@ -73,7 +73,7 @@ float petals(vec3 p)
         // adds tilt between leaves
         rp.z += 1.0/(abs(rp.x) + 1.5) + 0.5;
 
-        float petal = sdEllipsoid(rp, vec3(0.07, 0.01, 0.1));
+        float petal = sdEllipsoid(rp, vec3(0.1, 0.02, 0.2));
         petals = smin(petals, petal, 0.0);
     }
     return petals;
@@ -119,10 +119,10 @@ float leaves(vec3 p) {
 
         float dist_from_center = length(rp.xz);
 
-        rp.y += smoothstep(0.0,4.0, dist_from_center) * 30.0 - 15.0; 
+        rp.y += smoothstep(0.0,4.0, dist_from_center) * 26.0 - 15.0; 
         rp.z += angle / 4.0;
 
-        float leaf = sdEllipsoid(rp, vec3(0.3, 2.0, 0.5));
+        float leaf = sdEllipsoid(rp, vec3(0.5, 1.5, 0.5));
         leaves = smin(leaves, leaf, 0.0);
     }
     return leaves;
@@ -139,7 +139,7 @@ float single_flower(vec3 p)
 
     h = h * h;
 
-    float maxBend = 0.4; 
+    float maxBend = 1.1 + sin(uTime / 2.0) / 10.0; 
 
     float bendAngle = h * maxBend;
 
@@ -164,10 +164,10 @@ float single_flower(vec3 p)
 float sceneSDF(vec3 p)
 {
     const float COUNT = 7.0;     
-    float radius = 4.0;           
+    float radius = 5.0;           
 
-    p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -0.5);
-    float angle = atan(p.z, p.x);
+    p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -0.4);
+    float angle = atan(p.z, p.x) +.3;
     float r = length(p.xz);
 
     float sectorAngle = 6.28318 / COUNT;
@@ -201,11 +201,11 @@ void main()
     float aspect = uResolution.x / uResolution.y;
     vec2 resolution = vec2(uv.x * aspect, uv.y) * 0.5;
 
-    vec3 ray_origin = vec3(0.0, 0.7, -13.0);
+    vec3 ray_origin = vec3(0.0, 2.5, -14.0);
     vec3 ray_direction = normalize(vec3(resolution, 1.0));
 
     float MAX_DIST = 100.0;
-    const int MAX_STEPS = 100;
+    const int MAX_STEPS = 120;
     float dist_traveled = 0.0;
     int steps = 0;
     int intersected = 0;
@@ -226,13 +226,13 @@ void main()
         if(dist_traveled > MAX_DIST)
             break;
 
-        dist_traveled += distance * 0.6;
+        dist_traveled += distance * 0.35;
         steps += 1;
     }
 
     gl_FragColor = vec4(
         mix(
-            vec3(1.0), 
+            vec3(1.0 - uv.x * (uv.y + 0.01) / 4.0), 
             vec3(pow(1.0 - float(steps) / float(MAX_STEPS), 2.0)), 
             float(intersected)
         ), 

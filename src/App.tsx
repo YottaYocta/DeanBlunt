@@ -158,7 +158,7 @@ function App() {
           width={400}
           height={200}
         ></canvas>
-        {/* <div className="w-56 h-56 bg-[#FFFF6D] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-neutral-200">
+        <div className="w-56 h-56 bg-[#FFFF6D] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-neutral-200">
           <div className="w-full flex gap-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
@@ -167,7 +167,7 @@ function App() {
             </div>
           </div>
           <canvas className="w-full h-full bg-black rounded-lg"></canvas>
-        </div> */}
+        </div>
         <audio
           src="five.mp3"
           className="w-full rounded-md"
