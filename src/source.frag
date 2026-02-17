@@ -122,7 +122,7 @@ float leaves(vec3 p) {
         rp.y += smoothstep(0.0,4.0, dist_from_center) * 30.0 - 15.0; 
         rp.z += angle / 4.0;
 
-        float leaf = sdEllipsoid(rp, vec3(0.3, 1.0, 0.5));
+        float leaf = sdEllipsoid(rp, vec3(0.3, 2.0, 0.5));
         leaves = smin(leaves, leaf, 0.0);
     }
     return leaves;
@@ -139,12 +139,12 @@ float single_flower(vec3 p)
 
     h = h * h;
 
-    float maxBend = 0.3; 
+    float maxBend = 0.4; 
 
     float bendAngle = h * maxBend;
 
-    p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), sin(scaledTime) / 10.0 - 0.6);
-    p = rotateAroundAxis(p, vec3(0.0, 1.0, 0.0), 1.0);
+    //p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), 0.2);
+    p = rotateAroundAxis(p, vec3(0.0, 1.0, 0.0), 3.0);
 
     p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -bendAngle);
 
@@ -161,13 +161,47 @@ float single_flower(vec3 p)
     return scene;
 }
 
+float sceneSDF(vec3 p)
+{
+    const float COUNT = 7.0;     
+    float radius = 4.0;           
+
+    p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -0.5);
+    float angle = atan(p.z, p.x);
+    float r = length(p.xz);
+
+    float sectorAngle = 6.28318 / COUNT;
+
+    float id = floor((angle + 3.14159) / sectorAngle);
+
+    float centerAngle = id * sectorAngle + sectorAngle * 0.5 - 3.14159;
+
+    float localAngle = angle - centerAngle;
+
+    vec3 localP;
+
+    localP.x = r * cos(localAngle) - radius;
+    localP.z = r * sin(localAngle);
+    localP.y = p.y;
+
+    float variation = sin(id * 12.37) ;
+
+    localP = rotateAroundAxis(localP, vec3(0.0,1.0,0.0), centerAngle + variation);
+
+    localP.y += sin(id * 5.17) * 0.4;
+
+    return single_flower(localP);
+}
+
+
+
 void main()
 {
     vec2 uv = vec2(vUv.x * 2.0 - 1.0, vUv.y * 2.0 - 1.0);
     float aspect = uResolution.x / uResolution.y;
     vec2 resolution = vec2(uv.x * aspect, uv.y) * 0.5;
 
-    vec3 ray_origin = vec3(0.0, -0.0, -10.0);
+    vec3 ray_origin = vec3(0.0, 0.7, -13.0);
     vec3 ray_direction = normalize(vec3(resolution, 1.0));
 
     float MAX_DIST = 100.0;
@@ -180,7 +214,8 @@ void main()
     {
         vec3 current_pos = ray_origin + ray_direction * dist_traveled;
 
-        float distance = single_flower(current_pos);
+        float distance = sceneSDF(current_pos);
+
 
         if(distance < 0.1)
         {
@@ -191,7 +226,7 @@ void main()
         if(dist_traveled > MAX_DIST)
             break;
 
-        dist_traveled += distance * 0.5;
+        dist_traveled += distance * 0.6;
         steps += 1;
     }
 
