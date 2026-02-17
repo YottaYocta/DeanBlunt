@@ -100,6 +100,10 @@ function App() {
           const uniforms = {
             uTime: time * 0.01,
             uResolution: [gl.canvas.width, gl.canvas.height],
+            uNotes: [
+              analysisData.current.pitchData[0] / 255,
+              analysisData.current.pitchData[1] / 255,
+            ],
           };
 
           twgl.setUniforms(programInfo, uniforms);
@@ -153,12 +157,12 @@ function App() {
     <main className="w-full h-full min-h-screen flex items-center justify-center">
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
-          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-300 rounded-xl top-0 left-1/2 -translate-x-1/2"
+          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-200 rounded-xl top-0 left-1/2 -translate-x-1/2"
           ref={largeCanvasRef}
-          width={400}
-          height={200}
+          width={320}
+          height={160}
         ></canvas>
-        <div className="w-56 h-56 bg-[#FFFF6D] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-neutral-200">
+        <div className="w-56 h-56 bg-[#fff823] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300">
           <div className="w-full flex gap-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
