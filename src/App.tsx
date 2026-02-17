@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 type AnalysisData = {
   frequencyData: Uint8Array<ArrayBuffer>;
   waveformData: Uint8Array<ArrayBuffer>;
+  pitchData: float[];
 };
 
 function App() {
@@ -13,10 +14,11 @@ function App() {
   const animationFrame2 = useRef<number>(0);
   const largeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourceInitialized = useRef(false);
-  const FFT_SIZE = 2048 * 2;
+  const FFT_SIZE = 2048 * 4;
 
   const analysisData = useRef<AnalysisData>({
     frequencyData: new Uint8Array(FFT_SIZE / 2),
+    pitchData: [0, 0, 0],
     waveformData: new Uint8Array(FFT_SIZE),
   });
 
@@ -37,13 +39,36 @@ function App() {
 
   useEffect(() => {
     const updateAnalysisData = () => {
-      if (analyzerNodeRef.current) {
+      if (analyzerNodeRef.current && contextRef.current) {
         analyzerNodeRef.current.getByteFrequencyData(
           analysisData.current.frequencyData,
         );
         analyzerNodeRef.current.getByteFrequencyData(
           analysisData.current.waveformData,
         );
+
+        let freqWindowSize =
+          contextRef.current.sampleRate /
+          2 /
+          analyzerNodeRef.current.frequencyBinCount; // number of frequencies covered by each bin
+
+        const getNearestIntensity = (frequency: number) => {
+          return analysisData.current.frequencyData[
+            Math.floor(frequency / freqWindowSize)
+          ]; // the nth window to look at
+        };
+
+        const AVERAGE_RATIO = 0.02;
+
+        analysisData.current.pitchData[0] =
+          getNearestIntensity(131) * AVERAGE_RATIO +
+          (1 - AVERAGE_RATIO) * analysisData.current.pitchData[0];
+        analysisData.current.pitchData[1] =
+          getNearestIntensity(92) * AVERAGE_RATIO +
+          (1 - AVERAGE_RATIO) * analysisData.current.pitchData[1];
+        analysisData.current.pitchData[2] =
+          getNearestIntensity(120) * AVERAGE_RATIO +
+          (1 - AVERAGE_RATIO) * analysisData.current.pitchData[2];
       }
 
       animationFrame.current = requestAnimationFrame(updateAnalysisData);
@@ -54,29 +79,20 @@ function App() {
         const ctx = largeCanvasRef.current.getContext("2d")!;
         const width = largeCanvasRef.current.width;
         const height = largeCanvasRef.current.width;
-        const freqData = analysisData.current.frequencyData;
-
-        const MAX_FREQ = 255;
-        const FREQ_SKIP = 1;
-        const widthPerFreqeuncyBar = Math.max(
-          1,
-          width / (freqData.length / FREQ_SKIP + 1),
-        );
+        const pitchData = analysisData.current.pitchData;
 
         ctx.clearRect(0, 0, width, height);
 
-        ctx.fillStyle = "#000000";
+        const barWidth = Math.floor(width / pitchData.length);
+        for (let i = 0; i < pitchData.length; i++) {
+          const barHeight = Math.min(height, height * (pitchData[i] / 255));
 
-        for (let i = 0; i * FREQ_SKIP < freqData.length; i += 1) {
-          const index = i * FREQ_SKIP;
-          const currentFreqHeight = height * (freqData[index] / MAX_FREQ);
-
-          ctx.fillRect(
-            i * widthPerFreqeuncyBar,
-            Math.max(0, height - currentFreqHeight),
-            widthPerFreqeuncyBar,
-            currentFreqHeight,
-          );
+          ctx.fillStyle =
+            Math.abs(pitchData[0] - pitchData[1]) > 10 &&
+            pitchData[0] > pitchData[1]
+              ? "#ff0000"
+              : "#00ff00";
+          ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight);
         }
       }
 
