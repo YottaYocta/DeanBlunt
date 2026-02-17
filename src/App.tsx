@@ -18,12 +18,18 @@ function App() {
   const largeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourceInitialized = useRef(false);
   const FFT_SIZE = 2048 * 4;
+  const mousePosition = useRef<[number, number]>([0.5, 0.5]);
+  const mouseEased = useRef<[number, number]>([0.5, 0.5]);
 
   const analysisData = useRef<AnalysisData>({
     frequencyData: new Uint8Array(FFT_SIZE / 2),
     pitchData: [0, 0, 0],
     waveformData: new Uint8Array(FFT_SIZE),
   });
+
+  const lerp = (a: number, b: number, c: number) => {
+    return a * (1 - c) + c * b;
+  };
 
   const initializeSource = () => {
     contextRef.current = new AudioContext();
@@ -61,7 +67,7 @@ function App() {
           ]; // the nth window to look at
         };
 
-        const AVERAGE_RATIO = 0.02;
+        const AVERAGE_RATIO = 0.01;
 
         analysisData.current.pitchData[0] =
           getNearestIntensity(131) * AVERAGE_RATIO +
@@ -96,6 +102,12 @@ function App() {
           time += 1;
           twgl.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
           gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+          mouseEased.current[0] = lerp(
+            mouseEased.current[0],
+            mousePosition.current[0],
+            0.05,
+          );
+          mouseEased.current[1] = lerp(mouseEased.current[1], 1, 0.05);
 
           const uniforms = {
             uTime: time * 0.01,
@@ -103,7 +115,9 @@ function App() {
             uNotes: [
               analysisData.current.pitchData[0] / 255,
               analysisData.current.pitchData[1] / 255,
+              analysisData.current.pitchData[2] / 255,
             ],
+            uMouse: mouseEased.current,
           };
 
           twgl.setUniforms(programInfo, uniforms);
@@ -158,11 +172,23 @@ function App() {
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
           className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-200 rounded-xl top-0 left-1/2 -translate-x-1/2"
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+
+            mousePosition.current[0] = (e.clientX - rect.left) / rect.width;
+            mousePosition.current[1] = (e.clientY - rect.top) / rect.height;
+            mouseEased.current[1] = lerp(
+              mouseEased.current[1],
+              mousePosition.current[1],
+              0.01,
+            );
+          }}
           ref={largeCanvasRef}
           width={320}
           height={160}
-        ></canvas>
-        <div className="w-56 h-56 bg-[#fff823] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300">
+        />
+
+        <div className="w-56 h-56 bg-[#ffff43] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
           <div className="w-full flex gap-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
