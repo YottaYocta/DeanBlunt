@@ -1,5 +1,10 @@
 ---
 import "./global.css";
+
+/**
+ * need: a hook to get reference for audio data being played for some audio source
+ * a styleable playback thing
+ */
 ---
 
 <html lang="en">
@@ -27,11 +32,11 @@ import "./global.css";
               <p>Elias Rønnenfelt</p>
             </div>
           </div>
-          <canvas class="w-full h-full bg-black"></canvas>
+          <canvas class="w-full h-full bg-black rounded-lg"></canvas>
         </div>
         <audio src="five.mp3" class="w-full rounded-md" controls></audio>
 
-        <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+        <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
           <div class="w-full flex justify-between col-start-1 col-span-1">
             <label for="regrowth" class="w-full">Regrowth</label>
             <input
