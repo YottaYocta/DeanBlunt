@@ -99,7 +99,7 @@ function App() {
 
           const uniforms = {
             uTime: time * 0.01,
-            resolution: [gl.canvas.width, gl.canvas.height],
+            uResolution: [gl.canvas.width, gl.canvas.height],
           };
 
           twgl.setUniforms(programInfo, uniforms);
@@ -158,7 +158,7 @@ function App() {
           width={400}
           height={200}
         ></canvas>
-        <div className="w-56 h-56 bg-yellow-200 rounded-3xl flex flex-col p-4 gap-2 -translate-x-4">
+        {/* <div className="w-56 h-56 bg-yellow-200 rounded-3xl flex flex-col p-4 gap-2 -translate-x-4">
           <div className="w-full flex gap-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
@@ -167,7 +167,7 @@ function App() {
             </div>
           </div>
           <canvas className="w-full h-full bg-black rounded-lg"></canvas>
-        </div>
+        </div> */}
         <audio
           src="five.mp3"
           className="w-full rounded-md"
