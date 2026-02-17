@@ -3,6 +3,7 @@ import * as twgl from "twgl.js";
 import identityShader from "./identity.vert?raw";
 import daffodilShader from "./daffodils.frag?raw";
 import waveformShader from "./waveform.frag?raw";
+import elias from "./elias.png";
 
 type AnalysisData = {
   frequencyData: Uint8Array<ArrayBuffer>;
@@ -16,6 +17,7 @@ function App() {
   const analyzerNodeRef = useRef<AnalyserNode | null>(null);
   const animationFrame = useRef<number>(0);
   const animationFrame2 = useRef<number>(0);
+  const animationFrame3 = useRef<number>(0);
   const largeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const smallCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourceInitialized = useRef(false);
@@ -129,18 +131,56 @@ function App() {
 
         render();
       }
+    };
 
-      /**
-       * load quad mesh, bind with the same vertex shader as first shader, but replace the shader with the new
-       */
+    const drawSmallerCanvas = () => {
+      if (smallCanvasRef.current) {
+        const gl = smallCanvasRef.current.getContext("webgl2")!;
+        const programInfo = twgl.createProgramInfo(gl, [
+          identityShader,
+          waveformShader,
+        ]);
+
+        const baseQuadMesh = twgl.primitives.createXYQuadBufferInfo(gl);
+
+        gl.useProgram(programInfo.program);
+        twgl.setBuffersAndAttributes(gl, programInfo, baseQuadMesh);
+        const eliasTexture = twgl.createTexture(gl, { src: elias });
+
+        let time = 0;
+        const render = () => {
+          time += 1;
+          twgl.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
+          gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+          const uniforms = {
+            uTime: time * 0.01,
+            uResolution: [gl.canvas.width, gl.canvas.height],
+            uMouse: mouseEased.current,
+            uRotation: Math.PI / 4,
+            uDensity: 20,
+            uThreshold: 1.0,
+            uLineColor: [0, 0, 0, 1],
+            tElias: eliasTexture,
+          };
+
+          twgl.setUniforms(programInfo, uniforms);
+          twgl.drawBufferInfo(gl, baseQuadMesh);
+          animationFrame3.current = requestAnimationFrame(render);
+        };
+
+        render();
+      }
     };
 
     drawBaseCanvas();
+    drawSmallerCanvas();
     updateAnalysisData();
 
     return () => {
       cancelAnimationFrame(animationFrame.current);
       cancelAnimationFrame(animationFrame2.current);
+      cancelAnimationFrame(animationFrame3.current);
     };
   }, []);
 
@@ -165,8 +205,8 @@ function App() {
           height={160}
         />
 
-        <div className="w-56 h-56 bg-[#ffff43] rounded-xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
-          <div className="w-full flex gap-2">
+        <div className="w-56 h-56 bg-[#ffff43] rounded-xl flex flex-col p-2 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
+          <div className="w-full flex gap-2 p-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
               <p>Dean Blunt</p>
