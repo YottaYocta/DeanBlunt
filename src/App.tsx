@@ -160,7 +160,7 @@ function App() {
             uRotation: Math.PI / 4,
             uDensity: 20,
             uThreshold: 1.0,
-            uLineColor: [0, 0, 0, 1],
+            uLineColor: [0.15, 0.15, 0.15, 1],
             tElias: eliasTexture,
           };
 

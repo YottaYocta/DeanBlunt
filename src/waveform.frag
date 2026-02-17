@@ -37,17 +37,20 @@ vec2 rotateCenter(vec2 uv, float angle) {
 
 void main() {
     vec2 uvInRotatedSpace = invRotate(vUv, uRotation);
-
     vec2 targetPixInRot = vec2(floor(uvInRotatedSpace.x * uDensity + 0.5)/uDensity, uvInRotatedSpace.y);
+    vec2 targetPixInRot2 = vec2(floor((uvInRotatedSpace.x) * uDensity + 0.5)/uDensity, uvInRotatedSpace.y  + sin(uMouse) / 20.0);
 
-    float distanceFromTargetInRot = abs(targetPixInRot.x - uvInRotatedSpace.x);
+    float distanceFromTargetInRot = smoothstep(0.0, 1.0, abs(targetPixInRot.x - uvInRotatedSpace.x) * 1.2) * 15.0;
     float maxDist = 1.0 / uDensity;
 
     vec2 targetInCart = invRotate(targetPixInRot, -uRotation);
-    vec4 targetColor = texture2D(tElias, targetInCart);
+    vec2 targetInCart2 = invRotate(targetPixInRot2, -uRotation);
+    vec4 targetColor = (texture2D(tElias, targetInCart) + texture2D(tElias, targetInCart2)) * 0.5;
 
-    float targetLum = dot(targetColor.rgb, vec3(0.299, 0.587, 0.114));
-    float solidMask = clamp(targetLum, 0.0, uThreshold) < distanceFromTargetInRot * uDensity ? 1.0 : 0.0; // 1.0 is solid; should be shaded. 0.0 should be white space
+    float targetLum = pow(dot(targetColor.rgb, vec3(0.299, 0.587, 0.114)), 2.0);
+
+    // 1.0 is solid; should be shaded. 0.0 should be white space
+    float solidMask = clamp(targetLum, 0.0, 1.0) < distanceFromTargetInRot * uDensity ? 1.0 : 0.0; 
 
     vec4 lineColor = uLineColor;
 
