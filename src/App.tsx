@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import * as twgl from "twgl.js";
 import identityShader from "./identity.vert?raw";
-import sourceShader from "./source.frag?raw";
+import daffodilShader from "./daffodils.frag?raw";
+import waveformShader from "./waveform.frag?raw";
 
 type AnalysisData = {
   frequencyData: Uint8Array<ArrayBuffer>;
@@ -16,6 +17,7 @@ function App() {
   const animationFrame = useRef<number>(0);
   const animationFrame2 = useRef<number>(0);
   const largeCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const smallCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sourceInitialized = useRef(false);
   const FFT_SIZE = 2048 * 4;
   const mousePosition = useRef<[number, number]>([0.5, 0.5]);
@@ -88,7 +90,7 @@ function App() {
         const gl = largeCanvasRef.current.getContext("webgl2")!;
         const programInfo = twgl.createProgramInfo(gl, [
           identityShader,
-          sourceShader,
+          daffodilShader,
         ]);
 
         const baseQuadMesh = twgl.primitives.createXYQuadBufferInfo(gl);
@@ -127,6 +129,10 @@ function App() {
 
         render();
       }
+
+      /**
+       * load quad mesh, bind with the same vertex shader as first shader, but replace the shader with the new
+       */
     };
 
     drawBaseCanvas();
@@ -142,7 +148,7 @@ function App() {
     <main className="w-full h-full min-h-screen flex items-center justify-center">
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
-          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-200 rounded-xl top-0 left-1/2 -translate-x-1/2"
+          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-200 rounded-md top-0 left-1/2 -translate-x-1/2"
           onMouseMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
 
@@ -159,7 +165,7 @@ function App() {
           height={160}
         />
 
-        <div className="w-56 h-56 bg-[#ffff43] rounded-3xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
+        <div className="w-56 h-56 bg-[#ffff43] rounded-xl flex flex-col p-4 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
           <div className="w-full flex gap-2">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
@@ -167,7 +173,10 @@ function App() {
               <p>Elias Rønnenfelt</p>
             </div>
           </div>
-          <canvas className="w-full h-full bg-black rounded-lg"></canvas>
+          <canvas
+            className="w-full h-full rounded-lg"
+            ref={smallCanvasRef}
+          ></canvas>
         </div>
         <audio
           src="five.mp3"
