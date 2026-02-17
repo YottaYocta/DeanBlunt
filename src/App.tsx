@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
+import * as twgl from "twgl.js";
+import identityShader from "./identity.vert?raw";
+import sourceShader from "./source.frag?raw";
 
 type AnalysisData = {
   frequencyData: Uint8Array<ArrayBuffer>;
   waveformData: Uint8Array<ArrayBuffer>;
-  pitchData: float[];
+  pitchData: number[];
 };
 
 function App() {
@@ -74,35 +77,71 @@ function App() {
       animationFrame.current = requestAnimationFrame(updateAnalysisData);
     };
 
-    const drawFrequencyAndAmplitudeTest = () => {
+    const drawBaseCanvas = () => {
       if (largeCanvasRef.current) {
-        const ctx = largeCanvasRef.current.getContext("2d")!;
-        const width = largeCanvasRef.current.width;
-        const height = largeCanvasRef.current.width;
-        const pitchData = analysisData.current.pitchData;
+        const gl = largeCanvasRef.current.getContext("webgl2")!;
+        const programInfo = twgl.createProgramInfo(gl, [
+          identityShader,
+          sourceShader,
+        ]);
 
-        ctx.clearRect(0, 0, width, height);
+        const baseQuadMesh = twgl.primitives.createXYQuadBufferInfo(gl);
 
-        const barWidth = Math.floor(width / pitchData.length);
-        for (let i = 0; i < pitchData.length; i++) {
-          const barHeight = Math.min(height, height * (pitchData[i] / 255));
+        gl.useProgram(programInfo.program);
+        twgl.setBuffersAndAttributes(gl, programInfo, baseQuadMesh);
 
-          ctx.fillStyle =
-            Math.abs(pitchData[0] - pitchData[1]) > 10 &&
-            pitchData[0] > pitchData[1]
-              ? "#ff0000"
-              : "#00ff00";
-          ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight);
-        }
+        let time = 0;
+
+        const render = () => {
+          time += 1;
+          twgl.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
+          gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+          const uniforms = {
+            uTime: time * 0.01,
+            resolution: [gl.canvas.width, gl.canvas.height],
+          };
+
+          twgl.setUniforms(programInfo, uniforms);
+          twgl.drawBufferInfo(gl, baseQuadMesh);
+          animationFrame2.current = requestAnimationFrame(render);
+        };
+
+        render();
       }
-
-      animationFrame2.current = requestAnimationFrame(
-        drawFrequencyAndAmplitudeTest,
-      );
     };
 
+    drawBaseCanvas();
+
+    // const drawFrequencyAndAmplitudeTest = () => {
+    //   if (largeCanvasRef.current) {
+    //     const ctx = largeCanvasRef.current.getContext("2d")!;
+    //     const width = largeCanvasRef.current.width;
+    //     const height = largeCanvasRef.current.width;
+    //     const pitchData = analysisData.current.pitchData;
+
+    //     ctx.clearRect(0, 0, width, height);
+
+    //     const barWidth = Math.floor(width / pitchData.length);
+    //     for (let i = 0; i < pitchData.length; i++) {
+    //       const barHeight = Math.min(height, height * (pitchData[i] / 255));
+
+    //       ctx.fillStyle =
+    //         Math.abs(pitchData[0] - pitchData[1]) > 10 &&
+    //         pitchData[0] > pitchData[1]
+    //           ? "#ff0000"
+    //           : "#00ff00";
+    //       ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight);
+    //     }
+    //   }
+
+    //   animationFrame2.current = requestAnimationFrame(
+    //     drawFrequencyAndAmplitudeTest,
+    //   );
+    // };
+
     updateAnalysisData();
-    drawFrequencyAndAmplitudeTest();
+    // drawFrequencyAndAmplitudeTest();
 
     return () => {
       cancelAnimationFrame(animationFrame.current);
