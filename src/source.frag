@@ -254,7 +254,7 @@ void main()
                 //pow(1.0 - float(steps) / float(MAX_STEPS), 2.0)
                 //1.0
                 ), 
-                pow(min(1.0,(1.0 - uNotes.x) + 0.4), 2.0)
+                pow(min(1.0,(1.0 - uNotes.x - uNotes.z + uNotes.y) + 0.4), 2.0)
             //float(intersected)
         ), 
         1.0
