@@ -96,7 +96,7 @@ float trumpet(vec3 p)
     float hyper = 1.0 / (r + 10.0);
 
 
-    p_flare.y += hyper * sin(angle * angle);
+    p_flare.y += hyper * sin(angle * (angle - 1.6) * 2.0);
 
 
     float flare = sdEllipsoid(p_flare, vec3(0.09, 0.01, 0.09));
@@ -105,20 +105,56 @@ float trumpet(vec3 p)
     return trumpet;
 }
 
-float get_distance_to_scene(vec3 p)
+float leaves(vec3 p) {
+    float leaves = 1000.0;
+    const int LEAF_COUNT = 5;
+    for(int i = 0; i < LEAF_COUNT; i++)
+    {
+        float angle = float(i) / float(LEAF_COUNT) * 6.28318;
+        vec3 rp = p;
+        
+        float c = cos(angle);
+        float s = sin(angle);
+        rp.xz = mat2(c, -s, s, c) * rp.xz;
+
+        float dist_from_center = length(rp.xz);
+
+        rp.y += smoothstep(0.0,4.0, dist_from_center) * 30.0 - 15.0; 
+        rp.z += angle / 4.0;
+
+        float leaf = sdEllipsoid(rp, vec3(0.3, 1.0, 0.5));
+        leaves = smin(leaves, leaf, 0.0);
+    }
+    return leaves;
+}
+
+float single_flower(vec3 p)
 {
-    float scaledTime = uTime / 20.0;
+    float scaledTime = uTime / 2.0;
+
+    float bendStart = 7.0;  
+    float bendEnd   = 0.0;  
+
+    float h = clamp((p.y - bendStart) / (bendEnd - bendStart), 0.0, 1.0);
+
+    h = h * h;
+
+    float maxBend = 0.3; 
+
+    float bendAngle = h * maxBend;
 
     p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), sin(scaledTime) / 10.0 - 0.6);
-    p = rotateAroundAxis(p, vec3(0.0, 1.0, 0.0), scaledTime);
+    p = rotateAroundAxis(p, vec3(0.0, 1.0, 0.0), 1.0);
 
-    p.xz += vec2(sin(p.y * 0.2+ scaledTime), cos(p.y * 0.20 + scaledTime)) * smoothstep(-1.0, 0.0, p.y) / 2.0;
+    p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -bendAngle);
+
+    //p.xz += vec2(sin(p.y * 0.2+ scaledTime), cos(p.y * 0.20 + scaledTime)) * smoothstep(-1.0, 0.0, p.y) / 2.0;
 
     vec3 stemP = p;
-    stemP.y -= 5.0;
-    float stem = sdCappedCylinder(stemP, 5.0, 0.01);
+    stemP.y -= 6.0;
+    float stem = sdCappedCylinder(stemP, 7.0, 0.01);
 
-    float flower = smin(petals(p), trumpet(p), 0.0);
+    float flower = smin(smin(petals(p), trumpet(p), 0.0), leaves(p), 0.0);
 
     float scene = smin(flower, stem, 0.0);
 
@@ -144,7 +180,7 @@ void main()
     {
         vec3 current_pos = ray_origin + ray_direction * dist_traveled;
 
-        float distance = get_distance_to_scene(current_pos);
+        float distance = single_flower(current_pos);
 
         if(distance < 0.1)
         {
@@ -159,5 +195,12 @@ void main()
         steps += 1;
     }
 
-    gl_FragColor = vec4(vec3((float(steps) / float(MAX_STEPS)) * float(intersected)), 1.0);
+    gl_FragColor = vec4(
+        mix(
+            vec3(1.0), 
+            vec3(pow(1.0 - float(steps) / float(MAX_STEPS), 2.0)), 
+            float(intersected)
+        ), 
+        1.0
+    );
 }
