@@ -158,9 +158,9 @@ function App() {
             uResolution: [gl.canvas.width, gl.canvas.height],
             uMouse: mouseEased.current,
             uRotation: Math.PI / 4,
-            uDensity: 20,
+            uDensity: 30,
             uThreshold: 1.0,
-            uLineColor: [0.15, 0.15, 0.15, 1],
+            uLineColor: [1, 1, 1, 1],
             tElias: eliasTexture,
           };
 
@@ -205,18 +205,15 @@ function App() {
           height={160}
         />
 
-        <div className="w-56 h-56 bg-[#ffff43] rounded-xl flex flex-col p-2 gap-2 -translate-x-4 border border-yellow-300 pointer-events-none">
-          <div className="w-full flex gap-2 p-2">
+        <div className="w-56 h-56 bg-[#1a1a1a] flex flex-col p-2 gap-2 -translate-x-4 border border-neutral-700 pointer-events-none rounded-md">
+          <div className="w-full flex gap-2 p-2 text-white">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
               <p>Dean Blunt</p>
               <p>Elias Rønnenfelt</p>
             </div>
           </div>
-          <canvas
-            className="w-full h-full rounded-lg"
-            ref={smallCanvasRef}
-          ></canvas>
+          <canvas className="w-full h-full" ref={smallCanvasRef}></canvas>
         </div>
         <audio
           src="five.mp3"

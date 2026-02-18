@@ -245,12 +245,12 @@ void main()
             vec3(
                 //0.0,
                 //pow(max(0.0,1.0 - float(min_dist)), 2.0 * uNotes.x + 1.0),
-                pow(max(0.0,1.0 - float(min_dist)), 0.5 * uNotes.x + 1.0)
+                pow(max(0.0,1.0 - float(min_dist)), 0.5 * uNotes.x + 1.0) * 1.2
                 //pow(1.0 - float(steps) / float(MAX_STEPS), 2.0),
                 //1.0
                 ), 
                 vec3(
-                pow(max(0.0,1.0 - dist_traveled / MAX_DIST), 1.0)
+                pow(max(0.0,1.0 - dist_traveled / MAX_DIST), 1.0) 
                 //pow(1.0 - float(steps) / float(MAX_STEPS), 2.0)
                 //1.0
                 ), 
