@@ -24,10 +24,11 @@ function App() {
   const FFT_SIZE = 2048 * 4;
   const mousePosition = useRef<[number, number]>([0.5, 0.5]);
   const mouseEased = useRef<[number, number]>([0.5, 0.5]);
+  const mouseDown = useRef<[boolean, number]>([false, 0]);
 
   const analysisData = useRef<AnalysisData>({
     frequencyData: new Uint8Array(FFT_SIZE / 2),
-    pitchData: [0, 0, 0],
+    pitchData: [0, 0, 0, 0], // c, f#, b, higher reigister average
     waveformData: new Uint8Array(FFT_SIZE),
   });
 
@@ -82,6 +83,13 @@ function App() {
         analysisData.current.pitchData[2] =
           getNearestIntensity(120) * AVERAGE_RATIO +
           (1 - AVERAGE_RATIO) * analysisData.current.pitchData[2];
+        analysisData.current.pitchData[3] *= 0.7;
+        analysisData.current.pitchData[3] +=
+          ((getNearestIntensity(4000) +
+            getNearestIntensity(8000) +
+            getNearestIntensity(16000)) /
+            (255 * 3)) *
+          0.3;
       }
 
       animationFrame.current = requestAnimationFrame(updateAnalysisData);
@@ -112,6 +120,11 @@ function App() {
             0.05,
           );
           mouseEased.current[1] = lerp(mouseEased.current[1], 1, 0.05);
+          mouseDown.current[1] = lerp(
+            mouseDown.current[1],
+            mouseDown.current[0] ? 1 : 0,
+            mouseDown.current[0] ? 0.01 : 0.05,
+          );
 
           const uniforms = {
             uTime: time * 0.01,
@@ -122,6 +135,7 @@ function App() {
               analysisData.current.pitchData[2] / 255,
             ],
             uMouse: mouseEased.current,
+            uMouseDown: mouseDown.current[1],
           };
 
           twgl.setUniforms(programInfo, uniforms);
@@ -161,6 +175,7 @@ function App() {
             uDensity: 30,
             uThreshold: 1.0,
             uLineColor: [0, 0, 0, 1],
+            uAmplitude: analysisData.current.pitchData[3],
             tElias: eliasTexture,
           };
 
@@ -189,6 +204,12 @@ function App() {
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
           className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-500 rounded-md top-0 left-1/2 -translate-x-1/2"
+          onMouseDown={() => {
+            mouseDown.current[0] = true;
+          }}
+          onMouseUp={() => {
+            mouseDown.current[0] = false;
+          }}
           onMouseMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
 

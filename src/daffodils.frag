@@ -4,6 +4,7 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform vec3 uNotes;
 uniform vec2 uMouse;
+uniform float uMouseDown;
 varying vec2 vUv;
 
 float sdSphere(vec3 p, float r)
@@ -65,7 +66,6 @@ float petals(vec3 p)
         float angle = float(i) / float(PETAL_COUNT) * 6.28318;
         vec3 rp = p;
         
-       
         float c = cos(angle);
         float s = sin(angle);
         rp.xz = mat2(c, -s, s, c) * rp.xz;
@@ -73,16 +73,16 @@ float petals(vec3 p)
         float dist_from_center = length(rp.xz) * 7.0;
 
         // adds dip near stem
-        rp.y -= 2.0 / pow(1.3, dist_from_center + abs(rp.x) * 5.0);
-
-        // adds crease along center
-        rp.y += smoothstep(-0.9, 0.9, rp.x / 4.0) + 1.0;
+        rp.y -= 2.0 / pow(1.3 - uMouseDown / 10.0, dist_from_center + abs(rp.x) * 5.0);
 
         // adds tilt between leaves
-        rp.z += 1.0/(abs(rp.x) + 1.5) + 0.5;
+        rp.y += smoothstep(-0.9, 0.9, rp.x / 4.0) + 1.0;
 
-        float petal = sdEllipsoid(rp, vec3(0.1, 0.02, 0.2));
-        petals = smin(petals, petal, 0.0);
+        // pushes petal tip out
+        rp.z += 1.0/(abs(rp.x) + 1.5) + 0.5 + uMouseDown / 2.0;
+
+        float petal = sdEllipsoid(rp, vec3(0.1 + uMouseDown / 10.0, 0.02, 0.2 + uMouseDown / 10.0));
+        petals = smin(petals, petal, 0.1);
     }
     return petals;
 }
@@ -92,10 +92,10 @@ float trumpet(vec3 p)
     float dist_from_center = length(p.xz);
     vec3 p_base = p;
     p_base.y +=1.0;
-    float trumpetbase = sdCappedCone(p_base, 0.6, 0.3, 0.1);
+    float trumpetbase = sdCappedCone(p_base, 0.6 + uMouseDown, 0.3, 0.1);
 
     vec3 p_flare = p;
-    p_flare.y -= 1.0 / (dist_from_center + 0.4) - 3.2;
+    p_flare.y -= 1.0 / (dist_from_center + 0.4) - 3.2 - uMouseDown;
 
     float r = length(p_flare.xz);
     float angle = atan(p_flare.z, p_flare.x);
@@ -107,8 +107,8 @@ float trumpet(vec3 p)
     p_flare.y += hyper * sin(angle * (angle - 1.6) * 2.0);
 
 
-    float flare = sdEllipsoid(p_flare, vec3(0.09, 0.01, 0.09));
-    float trumpet = smin(trumpetbase, flare, 0.6);
+    float flare = sdEllipsoid(p_flare, vec3(0.09 + uMouseDown / 20.0, 0.01, 0.09 + uMouseDown / 20.0));
+    float trumpet = smin(trumpetbase, flare, 0.6 + uMouseDown / 2.0);
 
     return trumpet;
 }
@@ -130,8 +130,8 @@ float leaves(vec3 p) {
         rp.y += smoothstep(0.0,4.0, dist_from_center) * 20.0 - 15.0; 
         rp.z += angle / 4.0;
 
-        float leaf = sdEllipsoid(rp, vec3(0.5, 2.0, 0.5));
-        leaves = smin(leaves, leaf, 0.0);
+        float leaf = sdEllipsoid(rp, vec3(0.5, 2.0, 0.5 + uMouseDown / 2.0));
+        leaves = smin(leaves, leaf, uMouseDown);
     }
     return leaves;
 }
@@ -172,7 +172,7 @@ float single_flower(vec3 p)
 float sceneSDF(vec3 p)
 {
     const float COUNT = 6.0;     
-    float radius = 4.0;           
+    float radius = 4.0 + uMouseDown;           
 
     p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -0.5);
     float angle = atan(p.z, p.x) +.4 + (sin(uTime / 4.0) ) / 10.0 - (gain(uMouse.x, 1.2) - 0.5) / 5.0;
@@ -209,11 +209,11 @@ void main()
     float aspect = uResolution.x / uResolution.y;
     vec2 resolution = vec2(uv.x * aspect, uv.y) * 0.5;
 
-    vec3 ray_origin = vec3(0.0, 2.5, -12.0);
+    vec3 ray_origin = vec3(0.0, 2.5 - uMouseDown, -12.0 - uMouseDown);
     vec3 ray_direction = normalize(vec3(resolution, 1.0));
 
     float MAX_DIST = 20.0;
-    const int MAX_STEPS = 80;
+    const int MAX_STEPS = 500;
     float dist_traveled = 0.0;
     int steps = 0;
     int intersected = 0;
