@@ -203,7 +203,7 @@ function App() {
     <main className="w-full h-full min-h-screen flex items-center justify-center">
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
-          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-500 rounded-md top-0 left-1/2 -translate-x-1/2"
+          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-500 rounded-md top-0 left-1/2 -translate-x-1/2 cursor-pointer"
           onMouseDown={() => {
             mouseDown.current[0] = true;
           }}
