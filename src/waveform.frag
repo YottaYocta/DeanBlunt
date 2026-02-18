@@ -54,7 +54,7 @@ void main() {
 
     vec4 lineColor = uLineColor;
 
-    if (solidMask < 0.5) {
+    if (solidMask > 0.5) {
         gl_FragColor = lineColor;
     } else {
         gl_FragColor = vec4(0.0);

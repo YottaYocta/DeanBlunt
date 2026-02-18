@@ -160,7 +160,7 @@ function App() {
             uRotation: Math.PI / 4,
             uDensity: 30,
             uThreshold: 1.0,
-            uLineColor: [1, 1, 1, 1],
+            uLineColor: [0, 0, 0, 1],
             tElias: eliasTexture,
           };
 
@@ -188,7 +188,7 @@ function App() {
     <main className="w-full h-full min-h-screen flex items-center justify-center">
       <div className="w-124 flex flex-col gap-16 p-4 relative pt-48">
         <canvas
-          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-200 rounded-md top-0 left-1/2 -translate-x-1/2"
+          className="absolute w-2xl h-84 bg-neutral-50 border border-neutral-500 rounded-md top-0 left-1/2 -translate-x-1/2"
           onMouseMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
 
@@ -205,15 +205,15 @@ function App() {
           height={160}
         />
 
-        <div className="w-56 h-56 bg-[#1a1a1a] flex flex-col p-2 gap-2 -translate-x-4 border border-neutral-700 pointer-events-none rounded-md">
-          <div className="w-full flex gap-2 p-2 text-white">
+        <div className="w-56 h-56 bg-[#fffb00] flex flex-col p-2 gap-2 -translate-x-4 border border-[#ddd207] pointer-events-none rounded-md">
+          <div className="w-full flex gap-2 p-2 text-black">
             <p className="text-3xl">5</p>
             <div className="flex flex-col text-xs pt-1">
               <p>Dean Blunt</p>
               <p>Elias Rønnenfelt</p>
             </div>
           </div>
-          <canvas className="w-full h-full" ref={smallCanvasRef}></canvas>
+          <canvas className="w-full h-full " ref={smallCanvasRef}></canvas>
         </div>
         <audio
           src="five.mp3"
