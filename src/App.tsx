@@ -248,7 +248,7 @@ function App() {
             }
           }}
         ></audio>
-
+        {/* 
         <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
           <div className="w-full flex justify-between col-start-1 col-span-1">
             <label htmlFor="regrowth" className="w-full">
@@ -303,8 +303,8 @@ function App() {
               type="number"
               className="bg-white border-2 border-neutral-200 rounded-sm w-8"
             />
-          </div>
-        </div>
+          </div> 
+        </div> */}
       </div>
     </main>
   );

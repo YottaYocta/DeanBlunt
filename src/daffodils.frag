@@ -1,5 +1,5 @@
 precision highp float;
-
+precision highp int;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec3 uNotes;
@@ -36,9 +36,11 @@ float sdEllipsoid(vec3 p, vec3 r)
 
 float smin(float a, float b, float k)
 {
+    if (k <= 0.00001) return min(a, b);
     float h = clamp(0.5 + 0.5*(b-a)/k, 0.0, 1.0);
     return mix(b, a, h) - k*h*(1.0-h);
 }
+
 
 float gain( float x, float k ) 
 {
@@ -172,7 +174,7 @@ float single_flower(vec3 p)
 float sceneSDF(vec3 p)
 {
     const float COUNT = 6.0;     
-    float radius = 4.0 + uMouseDown;           
+    float radius = 4.0 + uMouseDown * 3.0;           
 
     p = rotateAroundAxis(p, vec3(1.0, 0.0, 0.0), -0.5);
     float angle = atan(p.z, p.x) +.4 + (sin(uTime / 4.0) ) / 10.0 - (gain(uMouse.x, 1.2) - 0.5) / 5.0;
@@ -209,11 +211,11 @@ void main()
     float aspect = uResolution.x / uResolution.y;
     vec2 resolution = vec2(uv.x * aspect, uv.y) * 0.5;
 
-    vec3 ray_origin = vec3(0.0, 2.5 - uMouseDown, -12.0 - uMouseDown);
+    vec3 ray_origin = vec3(0.0, 2.5 +  uMouseDown * 1.0, -12.0 - uMouseDown * 7.0);
     vec3 ray_direction = normalize(vec3(resolution, 1.0));
 
-    float MAX_DIST = 20.0;
-    const int MAX_STEPS = 500;
+    float MAX_DIST = 20.0 + 10.0 * uMouseDown;
+    const int MAX_STEPS = 100;
     float dist_traveled = 0.0;
     int steps = 0;
     int intersected = 0;
